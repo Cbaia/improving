@@ -1,675 +1,793 @@
 /* ============================================
-   VARIÁVEIS CSS - Cores e valores reutilizáveis
-   ============================================ */
+   PORTFOLIO A — O QUARTO DE TRABALHO
+   style.css
+============================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 :root {
-    --bg: #020817;              /* Cor de fundo principal - azul muito escuro */
-    --bg-light: #0f172a;        /* Cor de fundo secundária - azul escuro claro */
-    --text: #e2e8f0;            /* Cor do texto principal - branco acinzentado */
-    --accent: #3b82f6;          /* Cor de destaque - azul vibrante */
-    --accent-bright: #60a5fa;   /* Cor de destaque clara - azul brilhante */
-    --accent-dim: #3b82f633;    /* Cor de destaque transparente - azul com 20% opacidade */
-    --gray: #64748b;            /* Cor cinza para textos secundários */
-    --border: #1e293b;          /* Cor das bordas */
+  --bg-off: #0d0c0a;
+  --bg-on: #111009;
+  --ink: #e8e2d5;
+  --ink-dim: rgba(232, 226, 213, 0.5);
+  --ink-faint: rgba(232, 226, 213, 0.12);
+  --amber: #e8a830;
+  --amber-warm: #f2c060;
+  --amber-glow: rgba(232, 168, 48, 0.18);
+  --lamp-cone: rgba(248, 210, 120, 0.07);
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-mono: "IBM Plex Mono", monospace;
 }
 
-/* ============================================
-   RESET E CONFIGURAÇÕES GLOBAIS
-   ============================================ */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;  /* Inclui padding e border no cálculo de largura */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;  /* Fonte principal - estilo código */
-    font-size: 14px;
-    line-height: 1.6;
-    overflow-x: hidden;  /* Previne scroll horizontal */
-    position: relative;
+  background: var(--bg-off);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 300;
+  cursor: none;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* ============================================
-   CURSOR CUSTOMIZADO
-   ============================================ */
-body {
-    cursor: none;  /* Esconde o cursor padrão do navegador */
+/* ── CURSOR LANTERNA ───────────────────────────────── */
+.torch {
+  position: fixed;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.5s;
+  opacity: 0;
+  /* Lanterna limpa — sem rastros, gradiente radial puro */
+  background: radial-gradient(
+    circle,
+    rgba(248, 220, 150, 0.22) 0%,
+    rgba(248, 210, 120, 0.1) 30%,
+    rgba(232, 168, 48, 0.04) 55%,
+    transparent 72%
+  );
+  mix-blend-mode: screen;
 }
 
-#cursor {
-    position: fixed;  /* Fica fixo na tela, acompanha o scroll */
-    width: 8px;
-    height: 8px;
-    background: var(--accent-bright);
-    border-radius: 50%;  /* Faz ficar redondo */
-    pointer-events: none;  /* Não interfere nos cliques */
-    z-index: 9999;  /* Fica acima de tudo */
-    transition: transform 0.15s ease, opacity 0.15s ease;
-    opacity: 0;  /* Começa invisível */
-    box-shadow: 0 0 20px var(--accent-bright);  /* Brilho ao redor */
+body.lights-on .torch {
+  opacity: 1;
 }
 
-/* Cursor visível quando o mouse está na página */
-#cursor.active {
+/* Cursor dot */
+body::after {
+  content: "";
+  position: fixed;
+  width: 5px;
+  height: 5px;
+  background: var(--amber-warm);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.15s,
+    height 0.15s;
+  left: var(--cx, -100px);
+  top: var(--cy, -100px);
+  box-shadow: 0 0 6px var(--amber);
+}
+
+/* ── CORDA ─────────────────────────────────────────── */
+.cord-wrap {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: none;
+}
+
+.cord-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-top: 0.6rem;
+  margin-bottom: 0.4rem;
+  opacity: 1;
+  transition: opacity 0.4s;
+}
+
+body.lights-on .cord-label {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cord {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+}
+
+.cord-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--ink-dim), var(--amber));
+  transition: height 0.1s;
+}
+
+.cord-knob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: none;
+  transition: transform 0.15s;
+}
+
+.cord-knob:active {
+  transform: translateY(8px);
+}
+
+.knob-ring {
+  width: 18px;
+  height: 8px;
+  border: 1.5px solid var(--amber);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.knob-ball {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 8px rgba(232, 168, 48, 0.6);
+}
+
+.cord.pulling .cord-line {
+  height: 90px;
+}
+
+/* ── DARK MESSAGE ──────────────────────────────────── */
+.dark-message {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.8s;
+}
+
+.dm-inner {
+  text-align: center;
+  opacity: 0;
+  animation: dmFade 1.2s 0.5s forwards;
+}
+
+@keyframes dmFade {
+  to {
     opacity: 1;
+  }
 }
 
-/* Cursor aumenta ao passar sobre elementos clicáveis */
-#cursor.hover {
-    transform: scale(3);
-    background: transparent;
-    border: 1px solid var(--accent-bright);
+.dm-icon {
+  display: block;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--ink-dim);
 }
 
-/* ============================================
-   EFEITO DE HOLOFOTE - Segue o cursor
-   ============================================ */
-#spotlight {
-    position: fixed;
-    width: 600px;  /* Tamanho do holofote */
-    height: 600px;
-    /* Gradiente radial criando efeito de luz */
-    background: radial-gradient(
-        circle at center,
-        rgba(59, 130, 246, 0.15) 0%,    /* Centro mais brilhante */
-        rgba(59, 130, 246, 0.08) 25%,
-        rgba(59, 130, 246, 0.03) 50%,
-        transparent 70%                  /* Bordas transparentes */
-    );
-    pointer-events: none;  /* Não interfere nos cliques */
-    z-index: 1;  /* Fica atrás do conteúdo mas acima do fundo */
-    transform: translate(-50%, -50%);  /* Centraliza no cursor */
-    transition: opacity 0.3s ease;
-    opacity: 0;
-    filter: blur(40px);  /* Deixa o efeito difuso/suave */
+.dm-inner p {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--ink-dim);
+  line-height: 1.7;
 }
 
-/* Holofote visível quando o mouse está na página */
-#spotlight.active {
+body.lights-on .dark-message {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── SITE MAIN ─────────────────────────────────────── */
+.site-main {
+  opacity: 0;
+  transition: opacity 1s ease;
+  pointer-events: none;
+}
+
+body.lights-on .site-main {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── NAV ───────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 3rem;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.8s 0.4s,
+    background 0.4s;
+  background: rgba(13, 12, 10, 0);
+}
+
+body.lights-on .nav {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.nav.scrolled {
+  background: rgba(13, 12, 10, 0.92);
+  border-bottom: 1px solid var(--ink-faint);
+  backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  font-size: 1.2rem;
+  color: var(--amber);
+}
+
+.nav ul {
+  list-style: none;
+  display: flex;
+  gap: 2.5rem;
+}
+
+.nav a {
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.nav a:hover {
+  color: var(--amber);
+}
+
+.nav-off {
+  background: none;
+  border: 1px solid var(--ink-faint);
+  color: var(--ink-dim);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  cursor: none;
+  border-radius: 2px;
+  transition:
+    border-color 0.3s,
+    color 0.3s;
+}
+
+.nav-off:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+/* ── LAMP FIXTURES ─────────────────────────────────── */
+/* Abajur decorativo suspenso */
+.lamp-fixture {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.lamp-arm {
+  width: 2px;
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    var(--ink-faint),
+    rgba(232, 168, 48, 0.3)
+  );
+}
+
+.lamp-shade {
+  width: 0;
+  height: 0;
+  border-left: 45px solid transparent;
+  border-right: 45px solid transparent;
+  border-bottom: 60px solid rgba(232, 168, 48, 0.12);
+  filter: drop-shadow(0 2px 8px rgba(232, 168, 48, 0.15));
+}
+
+.lamp-cone {
+  position: absolute;
+  top: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+
+  border-left: 300px solid transparent;
+  border-right: 300px solid transparent;
+  border-bottom: 500px solid var(--lamp-cone);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.lamp-bulb {
+  position: absolute;
+  top: 134px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--amber-warm);
+  box-shadow:
+    0 0 20px 8px rgba(242, 192, 96, 0.5),
+    0 0 40px 20px rgba(232, 168, 48, 0.2);
+  animation: bulbFlicker 6s ease-in-out infinite;
+}
+
+@keyframes bulbFlicker {
+  0%,
+  100% {
     opacity: 1;
+    box-shadow:
+      0 0 20px 8px rgba(242, 192, 96, 0.5),
+      0 0 40px 20px rgba(232, 168, 48, 0.2);
+  }
+  92% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.85;
+    box-shadow: 0 0 12px 4px rgba(242, 192, 96, 0.3);
+  }
+  94% {
+    opacity: 1;
+  }
+  96% {
+    opacity: 0.9;
+  }
+  97% {
+    opacity: 1;
+  }
 }
 
-/* ============================================
-   HEADER - Menu de navegação fixo no topo
-   ============================================ */
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 2rem 4rem;
-    display: flex;
-    justify-content: space-between;  /* Espaça logo e nav */
-    align-items: center;
-    z-index: 100;  /* Fica acima do conteúdo */
-    /* Gradiente que faz o header desaparecer gradualmente */
-    background: linear-gradient(180deg, var(--bg) 0%, transparent 100%);
+/* Abajurs de seção menores */
+.section-lamp {
+  position: absolute;
+  top: 0;
+  left: 6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
 }
 
-/* Logo do site */
-.logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--accent-bright);
-    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);  /* Efeito de brilho */
+.section-lamp.right-lamp {
+  left: auto;
+  right: 6rem;
+}
+.section-lamp.center-lamp {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-/* Container do menu de navegação */
-nav {
-    display: flex;
-    gap: 3rem;  /* Espaçamento entre os links */
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+.sl-arm {
+  width: 1px;
+  height: 50px;
+  background: linear-gradient(
+    to bottom,
+    var(--ink-faint),
+    rgba(232, 168, 48, 0.25)
+  );
 }
 
-/* Links do menu */
-nav a {
-    color: var(--gray);
-    text-decoration: none;
-    transition: color 0.3s ease;
-    position: relative;  /* Para posicionar o pseudo-elemento ::after */
+.sl-shade {
+  width: 0;
+  height: 0;
+  border-left: 28px solid transparent;
+  border-right: 28px solid transparent;
+  border-bottom: 36px solid rgba(232, 168, 48, 0.1);
+  position: relative;
 }
 
-/* Linha animada que aparece abaixo do link no hover */
-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;  /* Começa com largura zero */
-    height: 1px;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
-    transition: width 0.3s ease;  /* Anima a largura */
+.sl-cone {
+  position: absolute;
+  top: 86px;
+  left: 25px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 160px solid transparent;
+  border-right: 160px solid transparent;
+  border-bottom: 280px solid rgba(248, 210, 120, 0.04);
+  filter: blur(25px);
+  pointer-events: none;
 }
 
-nav a:hover {
-    color: var(--text);
+/* ── HERO ──────────────────────────────────────────── */
+.hero-section {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 6rem;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ink-faint);
 }
 
-/* Linha expande ao passar o mouse */
-nav a:hover::after {
-    width: 100%;
-}
-
-/* ============================================
-   SEÇÃO HERO - Primeira seção com apresentação
-   ============================================ */
-.hero {
-    min-height: 100vh;  /* Ocupa toda a altura da tela */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;  /* Centraliza verticalmente */
-    padding: 0 4rem;
-    position: relative;
-    z-index: 2;
+.hero-lamp {
+  left: 50%;
 }
 
 .hero-content {
-    max-width: 1000px;
+  position: relative;
+  z-index: 2;
+  padding-top: 6rem;
 }
 
-/* Título principal */
-.hero h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(3rem, 8vw, 7rem);  /* Responsivo: mínimo 3rem, máximo 7rem */
-    font-weight: 700;
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-    margin-bottom: 2rem;
-    opacity: 0;  /* Começa invisível para animação */
-    animation: fadeInUp 1s ease forwards;  /* Animação de entrada */
+.pre-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 1.8rem;
 }
 
-/* Cada linha do título em uma linha separada */
-.hero h1 span {
-    display: block;
-    background: linear-gradient(135deg, var(--text) 0%, var(--gray) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(4rem, 8vw, 8rem);
+  font-weight: 300;
+  line-height: 0.95;
+  color: var(--ink);
+  margin-bottom: 2.5rem;
 }
 
-/* Classe especial para o nome - ajusta melhor em mobile */
-.hero h1 .name {
-    font-size: clamp(2rem, 6vw, 5rem);  /* Tamanho menor que o restante */
-    margin-bottom: 0.5rem;
+h1 em {
+  font-style: italic;
+  color: var(--amber-warm);
+  display: block;
+  font-weight: 300;
 }
 
-/* Texto destacado em azul */
-.hero h1 .accent {
-    background: linear-gradient(135deg, var(--accent-bright) 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
-    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+.hero-sub {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 3rem;
 }
 
-/* Descrição abaixo do título */
-.hero-description {
-    font-size: 1.1rem;
-    color: var(--gray);
-    max-width: 600px;
-    margin-bottom: 3rem;
-    opacity: 0;
-    animation: fadeInUp 1s ease 0.2s forwards;  /* Delay de 0.2s */
+.cta-link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--amber);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid rgba(232, 168, 48, 0.3);
+  padding-bottom: 2px;
+  transition: border-color 0.3s;
+}
+.cta-link:hover {
+  border-color: var(--amber);
 }
 
-/* Container dos botões de ação */
-.hero-cta {
-    display: flex;
-    gap: 1.5rem;
-    opacity: 0;
-    animation: fadeInUp 1s ease 0.4s forwards;  /* Delay de 0.4s */
+/* ── CONTENT SECTIONS ──────────────────────────────── */
+.content-section {
+  position: relative;
+  padding: 8rem 6rem;
+  border-bottom: 1px solid var(--ink-faint);
+  overflow: hidden;
 }
 
-/* ============================================
-   BOTÕES - Estilos dos botões de ação
-   ============================================ */
-.btn {
-    padding: 1rem 2rem;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text);
-    text-decoration: none;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;  /* Esconde o ::before quando está fora */
-    z-index: 2;
+.dark-section {
+  background: rgba(0, 0, 0, 0.3);
 }
 
-/* Efeito de preenchimento no hover - desliza da esquerda */
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;  /* Começa fora da tela à esquerda */
-    width: 100%;
-    height: 100%;
-    background: var(--accent-dim);
-    transition: left 0.3s ease;
-    z-index: -1;
+.sec-num {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--amber);
+  display: block;
+  margin-bottom: 1rem;
 }
 
-.btn:hover::before {
-    left: 0;  /* Desliza para dentro */
+h2 {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 3rem;
 }
 
-.btn:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+h2 em {
+  font-style: italic;
+  color: var(--amber-warm);
 }
 
-/* Botão primário - azul preenchido */
-.btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--bg);
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+.sec-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.sec-inner.centered {
+  text-align: center;
 }
 
-.btn-primary::before {
-    background: var(--accent-bright);
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 5rem;
+  align-items: start;
 }
 
-.btn-primary:hover {
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+.lead-text {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--amber-warm);
 }
 
-/* ============================================
-   GRID DE FUNDO - Decoração
-   ============================================ */
-.grid-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Cria um grid de linhas usando gradientes lineares */
-    background-image: 
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 50px 50px;  /* Tamanho de cada célula do grid */
-    opacity: 0.3;
-    z-index: 0;  /* Fica no fundo de tudo */
+.body-text p {
+  font-size: 0.85rem;
+  line-height: 1.9;
+  color: var(--ink-dim);
+  margin-bottom: 1rem;
 }
 
-/* ============================================
-   SEÇÕES GERAIS - Configurações para todas as seções
-   ============================================ */
-section {
-    padding: 8rem 4rem;
-    border-top: 1px solid var(--border);  /* Linha divisória no topo */
-    position: relative;
-    z-index: 2;
+/* ── SKILLS ──────────────────────────────────────────── */
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  max-width: 700px;
 }
 
-/* Título das seções */
-.section-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: var(--gray);
-    margin-bottom: 4rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.skill-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 40px;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-/* Linha decorativa antes do título */
-.section-title::before {
-    content: '';
-    width: 40px;
-    height: 1px;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
+.sk-name {
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-dim);
 }
 
-/* ============================================
-   GRID DE SKILLS - Cards de competências
-   ============================================ */
-.skills-grid {
-    display: grid;
-    /* Grid responsivo: cria colunas de no mínimo 280px 
-       e preenche toda a largura disponível */
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;  /* Espaçamento entre os cards */
-    width: 100%;  /* Garante que ocupe toda a largura */
-    max-width: 100%;  /* Não ultrapassa o container pai */
+.sk-bar {
+  height: 1px;
+  background: var(--ink-faint);
+  position: relative;
 }
 
-/* Card individual de skill */
-.skill-card {
-    border: 1px solid var(--border);
-    padding: 2.5rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    background: rgba(15, 23, 42, 0.5);  /* Fundo semi-transparente */
-    backdrop-filter: blur(10px);  /* Efeito de vidro fosco */
+.sk-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(to right, var(--amber), var(--amber-warm));
+  width: 0;
+  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 8px rgba(232, 168, 48, 0.5);
 }
 
-/* Barra vertical azul que aparece no hover */
-.skill-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 0;  /* Começa com altura zero */
-    background: linear-gradient(180deg, var(--accent-bright) 0%, var(--accent) 100%);
-    box-shadow: 0 0 15px var(--accent);
-    transition: height 0.3s ease;
+.sk-fill.animated {
+  width: var(--target-w);
 }
 
-/* Efeitos no hover do card */
-.skill-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-4px);  /* Levanta o card */
-    box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
-    background: rgba(15, 23, 42, 0.8);
+.sk-pct {
+  font-size: 0.65rem;
+  color: var(--amber);
+  letter-spacing: 0.05em;
+  text-align: right;
 }
 
-/* Barra expande no hover */
-.skill-card:hover::before {
-    height: 100%;
+/* ── PROJETOS ───────────────────────────────────────── */
+.proj-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
 }
 
-/* Ícone do card */
-.skill-icon {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+.proj-item {
+  padding: 2.5rem;
+  border: 1px solid var(--ink-faint);
+  margin: -1px 0 0 -1px;
+  position: relative;
+  transition: background 0.4s;
 }
 
-/* Título do card */
-.skill-card h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
+.proj-item:hover {
+  background: rgba(232, 168, 48, 0.03);
 }
 
-/* Texto descritivo do card */
-.skill-card p {
-    color: var(--gray);
-    font-size: 0.9rem;
-    line-height: 1.7;
+.proj-item:hover .proj-num {
+  color: var(--amber);
 }
 
-/* Container das tags de tecnologia */
-.skill-tags {
-    display: flex;
-    flex-wrap: wrap;  /* Quebra linha se necessário */
-    gap: 0.5rem;
-    margin-top: 1.5rem;
+.proj-num {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 300;
+  color: var(--ink-faint);
+  line-height: 1;
+  margin-bottom: 1rem;
+  transition: color 0.4s;
 }
 
-/* Tag individual */
-.tag {
-    font-size: 0.7rem;
-    padding: 0.3rem 0.8rem;
-    border: 1px solid var(--border);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--gray);
-    transition: all 0.3s ease;
+.proj-item h3 {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 0.8rem;
 }
 
-/* Tags mudam de cor quando o card está em hover */
-.skill-card:hover .tag {
-    border-color: var(--accent);
-    color: var(--accent-bright);
+.proj-item p {
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--ink-dim);
+  margin-bottom: 1.2rem;
 }
 
-/* ============================================
-   PROJETOS - Seção de portfolio
-   ============================================ */
-.projects {
-    max-width: 1400px;
+.proj-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
 }
 
-/* Item individual de projeto */
-.project-item {
-    border-top: 1px solid var(--border);
-    padding: 3rem 0;
-    display: grid;
-    grid-template-columns: 1fr 2fr;  /* Número ocupa 1 parte, conteúdo 2 partes */
-    gap: 4rem;
-    align-items: center;
-    transition: all 0.3s ease;
+.proj-meta span {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  border: 1px solid var(--ink-faint);
+  padding: 0.2rem 0.6rem;
 }
 
-/* Desloca para a direita no hover */
-.project-item:hover {
-    padding-left: 2rem;
+.proj-link {
+  font-size: 0.72rem;
+  color: var(--amber);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  transition: letter-spacing 0.3s;
+}
+.proj-link:hover {
+  letter-spacing: 0.2em;
 }
 
-/* Número grande do projeto */
-.project-number {
-    font-family: 'Syne', sans-serif;
-    font-size: 4rem;
-    font-weight: 700;
-    color: var(--border);  /* Começa escuro/invisível */
-    letter-spacing: -0.05em;
-    transition: all 0.3s ease;
+/* ── CONTATO ────────────────────────────────────────── */
+.contact-section {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
 }
 
-/* Número fica azul e brilhante no hover */
-.project-item:hover .project-number {
-    color: var(--accent);
-    text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+.big-cta {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2.8rem);
+  font-style: italic;
+  color: var(--amber-warm);
+  text-decoration: none;
+  display: block;
+  margin: 2rem 0 3rem;
+  transition: color 0.3s;
+  border-bottom: 1px solid transparent;
+}
+.big-cta:hover {
+  color: var(--amber);
+  border-bottom-color: rgba(232, 168, 48, 0.3);
 }
 
-/* Título do projeto */
-.project-content h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
+.social-row {
+  display: flex;
+  gap: 2.5rem;
+  justify-content: center;
 }
 
-/* Descrição do projeto */
-.project-content p {
-    color: var(--gray);
-    margin-bottom: 1.5rem;
-    line-height: 1.8;
+.social-row a {
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.social-row a:hover {
+  color: var(--amber);
 }
 
-/* Container das tecnologias do projeto */
-.project-tech {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+/* ── REVEAL ANIMATION ───────────────────────────────── */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+.reveal-item.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* Badge de tecnologia */
-.tech-badge {
-    font-size: 0.7rem;
-    padding: 0.4rem 1rem;
-    background: var(--accent-dim);
-    color: var(--accent-bright);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border: 1px solid transparent;
-    transition: all 0.3s ease;
+/* ── SCROLLBAR ──────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-off);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(232, 168, 48, 0.3);
 }
 
-/* Badges ganham borda e brilho no hover do projeto */
-.project-item:hover .tech-badge {
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-section,
+  .content-section {
+    padding: 6rem 2rem;
+  }
+  h1 {
+    font-size: clamp(3rem, 10vw, 5rem);
+  }
+  .two-col {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .proj-grid {
+    grid-template-columns: 1fr;
+  }
+  .skill-row {
+    grid-template-columns: 1fr 1fr 40px;
+  }
+  .sk-name {
+    grid-column: span 3;
+  }
+  .nav {
+    padding: 1.2rem 1.5rem;
+  }
+  .section-lamp {
+    display: none;
+  }
 }
 
-/* ============================================
-   CONTATO - Seção de contato
-   ============================================ */
-.contact {
-    min-height: 60vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.contact h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2.5rem, 6vw, 5rem);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    margin-bottom: 2rem;
-    max-width: 800px;
-}
-
-/* Container dos links de contato */
-.contact-links {
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
-    margin-top: 3rem;
-}
-
-/* Link individual de contato */
-.contact-link {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--gray);
-    text-decoration: none;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    padding: 1rem 0;
-    border-bottom: 1px solid transparent;
-}
-
-.contact-link:hover {
-    color: var(--accent-bright);
-    border-bottom-color: var(--accent);
-    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-}
-
-/* ============================================
-   FOOTER - Rodapé do site
-   ============================================ */
-footer {
-    padding: 3rem 4rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--gray);
-    font-size: 0.8rem;
-    position: relative;
-    z-index: 2;
-}
-
-/* ============================================
-   ANIMAÇÕES
-   ============================================ */
-/* Animação de fade in vindo de baixo para cima */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);  /* Começa 30px abaixo */
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);  /* Termina na posição original */
-    }
-}
-
-/* ============================================
-   RESPONSIVO - Ajustes para telas menores
-   ============================================ */
-@media (max-width: 768px) {
-    /* Header menor em mobile */
-    header {
-        padding: 1.5rem 2rem;
-    }
-
-    /* Menu mais compacto */
-    nav {
-        gap: 1.5rem;
-        font-size: 0.75rem;
-    }
-
-    /* Padding reduzido nas seções */
-    .hero,
-    section {
-        padding: 4rem 2rem;
-    }
-
-    /* Título hero menor */
-    .hero h1 {
-        font-size: 2.5rem;
-    }
-
-    /* Nome ainda menor em mobile para caber melhor */
-    .hero h1 .name {
-        font-size: 1.8rem;
-        word-break: break-word;  /* Quebra palavras longas se necessário */
-    }
-
-    /* Projetos em coluna única */
-    .project-item {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-
-    /* Skills em coluna única - um card por linha */
-    .skills-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* Footer empilhado verticalmente */
-    footer {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    /* Holofote menor em mobile */
-    #spotlight {
-        width: 400px;
-        height: 400px;
-    }
-
-    /* Botões em mobile ocupam largura total */
-    .hero-cta {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .btn {
-        width: 100%;
-        text-align: center;
-    }
-}
-
-/* Ajustes extras para telas muito pequenas (celulares em pé) */
-@media (max-width: 480px) {
-    .hero h1 .name {
-        font-size: 1.5rem;
-        line-height: 1.2;
-    }
-
-    .section-title {
-        font-size: 0.7rem;
-    }
-
-    .skill-card {
-        padding: 2rem;
-    }
+h2:hover {
+  transform: scale(1.5);
+  cursor: pointer;
+  color: #e8a830;
 }
