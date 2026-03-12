@@ -1,173 +1,183 @@
 /* ============================================
-   CURSOR CUSTOMIZADO E HOLOFOTE
-   ============================================ */
+   PORTFOLIO A — script.js
+   Corda + Lanterna + Revelação
+============================================ */
 
-// Seleciona os elementos do DOM
-const cursor = document.getElementById('cursor');  // Cursor pequeno que segue o mouse
-const spotlight = document.getElementById('spotlight');  // Holofote grande que segue o mouse
-const interactiveElements = document.querySelectorAll('a, button, .btn');  // Todos os elementos clicáveis
+const body      = document.getElementById('body');
+const torch     = document.getElementById('torch');
+const cord      = document.getElementById('cord');
+const cordKnob  = document.getElementById('cordKnob');
+const cordWrap  = document.getElementById('cordWrap');
+const navOff    = document.getElementById('navOff');
+const nav       = document.getElementById('nav');
 
-// Variáveis para armazenar a posição do mouse
-let mouseX = 0;
-let mouseY = 0;
+let mouseX = -500, mouseY = -500;
+let torchX = -500, torchY = -500;
+let isOn = false;
 
-/* --------------------------------------------
-   ATUALIZAR POSIÇÃO DO CURSOR E HOLOFOTE
-   -------------------------------------------- */
-// Evento disparado sempre que o mouse se move
+// ── Cursor lanterna (sem rastro, sem lerp excessivo) ──────
 document.addEventListener('mousemove', (e) => {
-    // Captura as coordenadas X e Y do mouse
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    
-    // CURSOR PEQUENO
-    // Posiciona o cursor na posição exata do mouse
-    cursor.style.left = mouseX + 'px';
-    cursor.style.top = mouseY + 'px';
-    cursor.classList.add('active');  // Torna o cursor visível
-    
-    // HOLOFOTE
-    // Posiciona o holofote centralizado no cursor
-    // (o CSS já tem transform: translate(-50%, -50%) para centralizar)
-    spotlight.style.left = mouseX + 'px';
-    spotlight.style.top = mouseY + 'px';
-    spotlight.classList.add('active');  // Torna o holofote visível
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  // Dot via CSS custom properties
+  document.documentElement.style.setProperty('--cx', e.clientX + 'px');
+  document.documentElement.style.setProperty('--cy', e.clientY + 'px');
 });
 
-/* --------------------------------------------
-   ESCONDER CURSOR E HOLOFOTE QUANDO O MOUSE SAI DA PÁGINA
-   -------------------------------------------- */
-document.addEventListener('mouseleave', () => {
-    cursor.classList.remove('active');  // Esconde o cursor
-    spotlight.classList.remove('active');  // Esconde o holofote
+// A lanterna segue com leve lag — suave mas sem rastro de brilho
+function animateTorch() {
+  torchX += (mouseX - torchX) * 0.14;
+  torchY += (mouseY - torchY) * 0.14;
+  torch.style.left = torchX + 'px';
+  torch.style.top  = torchY + 'px';
+  requestAnimationFrame(animateTorch);
+}
+animateTorch();
+
+// ── Hover nos elementos interativos ───────────────────────
+document.querySelectorAll('a, button, .proj-item, .skill-row').forEach(el => {
+  el.addEventListener('mouseenter', () => torch.style.width = torch.style.height = '420px');
+  el.addEventListener('mouseleave', () => torch.style.width = torch.style.height = '320px');
 });
 
-/* --------------------------------------------
-   MOSTRAR CURSOR E HOLOFOTE QUANDO O MOUSE VOLTA PARA A PÁGINA
-   -------------------------------------------- */
-document.addEventListener('mouseenter', () => {
-    cursor.classList.add('active');  // Mostra o cursor
-    spotlight.classList.add('active');  // Mostra o holofote
+// ── LIGAR: puxar a corda ───────────────────────────────────
+function turnOn() {
+  if (isOn) return;
+  isOn = true;
+
+  // Animação de puxar
+  cord.classList.add('pulling');
+  setTimeout(() => cord.classList.remove('pulling'), 400);
+
+  // Liga o site
+  body.classList.remove('lights-off');
+  body.classList.add('lights-on');
+
+  // Oculta a corda depois de um tempo
+  setTimeout(() => {
+    cordWrap.style.opacity = '0';
+    cordWrap.style.pointerEvents = 'none';
+  }, 800);
+
+  // Anima as barras de skill quando aparecerem
+  setTimeout(() => animateSkillBars(), 1200);
+}
+
+// ── DESLIGAR ────────────────────────────────────────────────
+function turnOff() {
+  isOn = false;
+  body.classList.remove('lights-on');
+  body.classList.add('lights-off');
+  cordWrap.style.opacity = '1';
+  cordWrap.style.pointerEvents = 'all';
+
+  // Reset skill bars
+  document.querySelectorAll('.sk-fill').forEach(bar => {
+    bar.classList.remove('animated');
+    bar.style.removeProperty('--target-w');
+  });
+}
+
+cordKnob.addEventListener('click', turnOn);
+if (navOff) navOff.addEventListener('click', turnOff);
+
+// Também aceita clicar em qualquer lugar da corda
+cord.addEventListener('click', turnOn);
+
+// ── Scroll reveal ────────────────────────────────────────────
+const revealEls = document.querySelectorAll(
+  '.hero-content, .sec-num, h2, .two-col, .proj-item, .skill-row, .big-cta, .social-row'
+);
+revealEls.forEach(el => el.classList.add('reveal-item'));
+
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 60);
+      revealObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+revealEls.forEach(el => revealObs.observe(el));
+
+// ── Barras de skill ───────────────────────────────────────────
+function animateSkillBars() {
+  document.querySelectorAll('.sk-fill').forEach(bar => {
+    const w = bar.dataset.w + '%';
+    bar.style.setProperty('--target-w', w);
+    bar.classList.add('animated');
+  });
+}
+
+// Re-anima ao rolar até a seção skills (caso já esteja ligado)
+const skillsSection = document.getElementById('skills');
+if (skillsSection) {
+  const skillsObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && isOn) animateSkillBars();
+  }, { threshold: 0.3 });
+  skillsObs.observe(skillsSection);
+}
+
+// ── Nav scroll effect ─────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 80);
 });
 
-/* --------------------------------------------
-   EFEITOS DE HOVER NOS ELEMENTOS INTERATIVOS
-   -------------------------------------------- */
-// Para cada elemento clicável (links, botões, etc.)
-interactiveElements.forEach(el => {
-    // Quando o mouse entra no elemento
-    el.addEventListener('mouseenter', () => {
-        cursor.classList.add('hover');  // Aumenta o cursor
-    });
-    
-    // Quando o mouse sai do elemento
-    el.addEventListener('mouseleave', () => {
-        cursor.classList.remove('hover');  // Volta ao tamanho normal
-    });
+// ── Jogo de luz: iluminação por zona ──────────────────────────
+// Cada seção tem um cone de luz — ao rolar, a intensidade varia
+const sections = document.querySelectorAll('.content-section, .hero-section');
+
+const lightObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const cone = entry.target.querySelector('.lamp-cone, .sl-cone');
+    const shade = entry.target.querySelector('.lamp-shade, .sl-shade');
+    if (!cone && !shade) return;
+
+    if (entry.isIntersecting) {
+      const ratio = entry.intersectionRatio;
+      if (cone) cone.style.opacity = String(0.5 + ratio * 0.8);
+      if (shade) {
+        const el = shade;
+        el.style.borderBottomColor = `rgba(232,168,48,${0.05 + ratio * 0.2})`;
+      }
+    }
+  });
+}, { threshold: Array.from({ length: 20 }, (_, i) => i / 20) });
+
+sections.forEach(s => lightObs.observe(s));
+
+// ── Efeito de pressionar corda com mouse/touch ─────────────────
+let cordPullY = 0;
+let isDragging = false;
+
+cordKnob.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  cordPullY = e.clientY;
 });
 
-/* ============================================
-   SCROLL SUAVE
-   ============================================ */
-// Seleciona todos os links que começam com # (links de navegação interna)
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();  // Previne o comportamento padrão do link
-        
-        // Pega o elemento alvo baseado no href do link
-        const target = document.querySelector(this.getAttribute('href'));
-        
-        // Se o elemento existe, faz scroll suave até ele
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',  // Animação suave
-                block: 'start'       // Alinha o elemento no topo da tela
-            });
-        }
-    });
+document.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  const delta = e.clientY - cordPullY;
+  if (delta > 0) {
+    const clamp = Math.min(delta, 60);
+    document.querySelector('.cord-line').style.height = (60 + clamp) + 'px';
+  }
 });
 
-/* ============================================
-   ANIMAÇÃO AO SCROLL - Intersection Observer
-   ============================================ */
-/* 
-   Intersection Observer detecta quando elementos entram na tela
-   e dispara animações. É mais performático que eventos de scroll.
-*/
-
-// Configurações do observer
-const observerOptions = {
-    threshold: 0.1,  // Dispara quando 10% do elemento está visível
-    rootMargin: '0px 0px -100px 0px'  // Dispara 100px antes do elemento entrar na tela
-};
-
-// Cria o observer
-const observer = new IntersectionObserver((entries) => {
-    // Para cada elemento observado
-    entries.forEach(entry => {
-        // Se o elemento está entrando na tela (está visível)
-        if (entry.isIntersecting) {
-            // Aplica a animação fadeInUp definida no CSS
-            entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
-        }
-    });
-}, observerOptions);
-
-// Observa todos os cards de skills e itens de projeto
-document.querySelectorAll('.skill-card, .project-item').forEach(el => {
-    observer.observe(el);  // Adiciona o elemento à lista de observação
+document.addEventListener('mouseup', (e) => {
+  if (!isDragging) return;
+  const delta = e.clientY - cordPullY;
+  isDragging = false;
+  document.querySelector('.cord-line').style.height = '60px';
+  if (delta > 30) turnOn();
 });
 
-/* ============================================
-   EFEITO DE BRILHO AO PASSAR O MOUSE SOBRE CARDS
-   ============================================ */
-/*
-   Este efeito pode ser expandido futuramente para criar
-   um brilho que segue o cursor dentro do card
-*/
-document.querySelectorAll('.skill-card, .project-item').forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-        // Pega as dimensões e posição do card
-        const rect = card.getBoundingClientRect();
-        
-        // Calcula a posição do mouse relativa ao card
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        // Define variáveis CSS customizadas com a posição do mouse
-        // (podem ser usadas no CSS para criar efeitos de brilho)
-        card.style.setProperty('--mouse-x', `${x}px`);
-        card.style.setProperty('--mouse-y', `${y}px`);
-    });
+// Touch support
+cordKnob.addEventListener('touchstart', (e) => {
+  cordPullY = e.touches[0].clientY;
 });
-
-/* ============================================
-   NOTAS PARA EXPANSÃO FUTURA
-   ============================================ */
-/*
-   IDEIAS PARA ADICIONAR:
-   
-   1. SCROLL PROGRESS BAR
-      - Adicionar uma barra no topo que mostra o progresso do scroll
-   
-   2. ANIMAÇÃO DE DIGITAÇÃO NO TÍTULO
-      - Fazer o título aparecer como se estivesse sendo digitado
-   
-   3. PARTICLES.JS
-      - Adicionar partículas interativas no fundo
-   
-   4. MODO ESCURO/CLARO
-      - Adicionar toggle para alternar entre temas
-   
-   5. LAZY LOADING DE IMAGENS
-      - Se adicionar imagens, fazer elas carregarem só quando visíveis
-   
-   6. CONTADOR ANIMADO
-      - Se adicionar estatísticas (projetos, clientes, etc), animar números
-   
-   7. FILTRO DE PROJETOS
-      - Adicionar botões para filtrar projetos por tecnologia
-   
-   8. VALIDAÇÃO DE FORMULÁRIO
-      - Se adicionar formulário de contato, validar campos
-*/
+cordKnob.addEventListener('touchend', (e) => {
+  const delta = e.changedTouches[0].clientY - cordPullY;
+  if (delta > 30) turnOn();
+});
